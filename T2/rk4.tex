@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+
+\title{T2A1: Derive the fourth-order Runge--Kutta algorithm}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{The problem}
+Solve $dy/dt = g(y,t)$ with $y(0)=y_0$. If I know $y(t)$, I want to find $y(t+\tau)$.
+
+\section*{The idea}
+The exact answer is the Taylor series:
+\[
+y(t+\tau) = y + \tau y' + \frac{\tau^2}{2}y'' + \frac{\tau^3}{6}y''' + \frac{\tau^4}{24}y^{(4)} + O(\tau^5)
+\]
+with $y' = g$ and, using the chain rule (Eq.~4.22 in the book),
+\[
+y'' = g_t + g g_y, \qquad y''' = g_{tt} + 2g g_{ty} + g^2 g_{yy} + g_y(g_t + g g_y).
+\]
+These derivatives of $g$ are annoying to compute. So instead I take a weighted average of $g$ at a few points in the step. The weights and points are chosen so the result matches the Taylor series up to $\tau^4$.
+
+\section*{Warm-up: two slopes}
+First I try two slopes (Eqs.~4.25--4.32 in the book):
+\[
+y(t+\tau) = y + \alpha_1 c_1 + \alpha_2 c_2, \qquad c_1 = \tau g(y,t), \qquad c_2 = \tau g(y+\nu c_1, t+\nu\tau).
+\]
+Taylor expanding $c_2$:
+\[
+c_2 = \tau g + \nu\tau^2 (g_t + g g_y) + O(\tau^3).
+\]
+Putting this back in:
+\[
+y(t+\tau) = y + (\alpha_1+\alpha_2)\tau g + \alpha_2\nu\tau^2(g_t + g g_y) + O(\tau^3).
+\]
+Comparing with the Taylor series:
+\[
+\alpha_1 + \alpha_2 = 1, \qquad \alpha_2\nu = \frac12.
+\]
+This is 2 equations for 3 unknowns, so there is a free choice, e.g.\ $\alpha_1=\alpha_2=\frac12$, $\nu=1$.
+For fourth order I do the same, just with more terms.
+
+\section*{Four slopes}
+Now I use four slopes (Eqs.~4.23--4.24 in the book):
+\[
+y(t+\tau) = y + \alpha_1 c_1 + \alpha_2 c_2 + \alpha_3 c_3 + \alpha_4 c_4
+\]
+\begin{align*}
+c_1 &= \tau g(y, t) \\
+c_2 &= \tau g(y+\nu_{21}c_1, t+\lambda_2\tau) \\
+c_3 &= \tau g(y+\nu_{31}c_1+\nu_{32}c_2, t+\lambda_3\tau) \\
+c_4 &= \tau g(y+\nu_{41}c_1+\nu_{42}c_2+\nu_{43}c_3, t+\lambda_4\tau)
+\end{align*}
+where $\lambda_i$ is the sum of the $\nu$'s in row $i$. There are 10 unknowns: 4 $\alpha$'s and 6 $\nu$'s.
+
+I expand each $c_i$ like in the warm-up and compare with the Taylor series up to $\tau^4$. Each type of term gives one equation, 8 in total:
+\begin{align*}
+\tau^1&: \quad \alpha_1+\alpha_2+\alpha_3+\alpha_4 = 1 \\
+\tau^2&: \quad \sum \alpha_i\lambda_i = \frac12 \\
+\tau^3&: \quad \sum \alpha_i\lambda_i^2 = \frac13, \qquad \alpha_3\nu_{32}\lambda_2 + \alpha_4(\nu_{42}\lambda_2+\nu_{43}\lambda_3) = \frac16 \\
+\tau^4&: \quad \sum \alpha_i\lambda_i^3 = \frac14, \qquad \text{plus 3 more for the mixed terms}
+\end{align*}
+8 equations and 10 unknowns leaves 2 free choices.
+
+\section*{Choosing the parameters}
+I take the slope at the start, twice in the middle and at the end: $\lambda_1 = 0$, $\lambda_2 = \lambda_3 = \frac12$, $\lambda_4 = 1$.
+Then:
+\begin{align*}
+\alpha_1+\alpha_2+\alpha_3+\alpha_4 &= 1 \\
+\tfrac12(\alpha_2+\alpha_3) + \alpha_4 &= \tfrac12 \\
+\tfrac14(\alpha_2+\alpha_3) + \alpha_4 &= \tfrac13
+\end{align*}
+Subtracting the last two gives $\alpha_2+\alpha_3 = \frac23$. Therefore $\alpha_4 = \frac16$ and $\alpha_1 = \frac16$.
+
+Next I choose $\alpha_2=\alpha_3=\frac13$. The simplest $\nu$'s that satisfy the other equations are $\nu_{21} = \nu_{32} = \frac12$, $\nu_{43} = 1$ and the rest zero.
+Check: $\frac13\cdot\frac12\cdot\frac12 + \frac16\cdot 1\cdot\frac12 = \frac16$. The remaining equations also hold.
+
+\section*{Result}
+\[
+y(t+\tau) = y(t) + \frac16(c_1 + 2c_2 + 2c_3 + c_4)
+\]
+\begin{align*}
+c_1 &= \tau g(y, t) \\
+c_2 &= \tau g(y+\tfrac12 c_1, t+\tfrac12\tau) \\
+c_3 &= \tau g(y+\tfrac12 c_2, t+\tfrac12\tau) \\
+c_4 &= \tau g(y+c_3, t+\tau)
+\end{align*}
+This is Eqs.~4.33--4.37 in the book. Starting from $y_0$, I repeat this step. The error per step is $O(\tau^5)$.
+
+\section*{Discussion}
+There are more unknowns than equations, so the parameters are not unique.
+The classical choice is the simplest, since most $\nu$'s are zero.
+Another option is the points $0, \frac13, \frac23, 1$, which gives Kutta's 3/8 rule: $y(t+\tau) = y + \frac18(c_1 + 3c_2 + 3c_3 + c_4)$.
+The book also says the parameters can be adjusted to the problem to improve accuracy.
+
+\end{document}
