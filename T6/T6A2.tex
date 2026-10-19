@@ -1,0 +1,71 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{center}
+{\Large T6A2: Helmholtz equation through its weak form}
+\end{center}
+
+Equation: $\phi''(x) + k^2\phi(x) = -s(x)$ on $[0, 1]$ with $\phi(0) = \phi(1) = 0$, $k = \pi$ and $s(x) = \delta(x - 0.5)$.
+
+\medskip
+\noindent 1) Weak form
+\nopagebreak
+
+\noindent Same as section 9.3 in the book (Eqs.\ 9.35--9.38). I multiply the equation by $\psi(x)$ with $\psi(0) = \psi(1) = 0$ and integrate from 0 to 1.
+Then I do integration by parts on $\phi''\psi$. The boundary term is 0 because $\psi(0) = \psi(1) = 0$:
+\[
+\int_0^1 \phi''\psi\,dx = \Big[\phi'\psi\Big]_0^1 - \int_0^1 \phi'\psi'\,dx = -\int_0^1 \phi'\psi'\,dx.
+\]
+The $\delta$ gives $\int_0^1 \delta(x - 0.5)\,\psi\,dx = \psi(0.5)$. So the weak form is:
+\[
+\int_0^1 \left(\phi'\psi' - k^2\phi\psi\right) dx = \psi(0.5) \qquad \text{for every } \psi \text{ with } \psi(0) = \psi(1) = 0.
+\]
+Only $\phi'$ is in the weak form, so $\phi$ has to be continuous but $\phi'$ can jump.
+
+\medskip
+\noindent 2) Solving the weak form
+\nopagebreak
+
+\noindent I use the basis from section 9.2 (Eqs.\ 9.12 and 9.13): $u_l = \sqrt{2}\sin(l\pi x)$, $l = 1, 2, \dots$
+They are orthonormal, so $\phi = \sum_l a_l u_l$ with $a_l = \int_0^1 \phi\,u_l\,dx$.
+I put $\psi = u_l$ in the weak form. For the first term I do integration by parts again, but now the derivative goes to $u_l$.
+The boundary term is 0 because $\phi(0) = \phi(1) = 0$, and $u_l'' = -l^2\pi^2 u_l$:
+\[
+\int_0^1 \phi' u_l'\,dx = \Big[\phi\,u_l'\Big]_0^1 - \int_0^1 \phi\,u_l''\,dx = l^2\pi^2 a_l.
+\]
+With $u_l(0.5) = \sqrt{2}\sin(l\pi/2)$, the weak form becomes:
+\[
+\left(l^2\pi^2 - k^2\right) a_l = \sqrt{2}\sin\frac{l\pi}{2}.
+\]
+This is true for every solution of the weak form, because I only used that $\phi$ is continuous and $\phi(0) = \phi(1) = 0$.
+
+For $k = \pi$ and $l = 1$: the left side is $(\pi^2 - \pi^2)a_1 = 0$ and the right side is $\sqrt{2}\sin(\pi/2) = \sqrt{2}$.
+So $0 = \sqrt{2}$, which is not possible. Therefore, the weak form has no solution.
+
+Reason: $\sin(\pi x)$ already solves $\phi'' + \pi^2\phi = 0$ with $\phi(0) = \phi(1) = 0$, so $k^2 = \pi^2$ is an eigenvalue (Eq.\ 9.43).
+The $\delta$ at $x = 0.5$ hits this mode at its maximum, so $a_1$ would have to be infinite (resonance).
+
+\medskip
+\noindent 3) Solving the equation
+\nopagebreak
+
+\noindent For $x \neq 0.5$: $\phi'' + \pi^2\phi = 0$, so on each side $\phi$ is a mix of $\sin(\pi x)$ and $\cos(\pi x)$.\\
+At $x = 0.5$: I integrate the equation from $0.5 - \varepsilon$ to $0.5 + \varepsilon$. $\phi$ is continuous, so the integral of $\phi$ goes to 0 for $\varepsilon \to 0$. The $\delta$ gives $-1$, so the slope jumps:
+\[
+\phi'(0.5^+) - \phi'(0.5^-) = -1.
+\]
+Left part ($x < 0.5$): $\phi(0) = 0$ removes the cos, so $\phi = A\sin(\pi x)$.\\
+Right part ($x > 0.5$): $\phi(1) = 0$ also removes the cos, because $\cos(\pi) = -1 \neq 0$, so $\phi = C\sin(\pi x)$.\\
+Both have slope 0 at $x = 0.5$ because $\cos(\pi/2) = 0$. So the jump is 0, not $-1$. Therefore, the equation has no solution also.
+
+\medskip
+\noindent 4) Is the solution of the weak form the same as the solution of the equation?
+\nopagebreak
+
+\noindent For $k = \pi$ both have no solution, because of the same resonance with $\sin(\pi x)$.
+The weak form only needs $\phi'$, so it is ok with the kink from the $\delta$ (section 9.3), but the resonance is still there.
+So the answer is the same for both: no solution.
+
+\end{document}
